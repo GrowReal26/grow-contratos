@@ -9,11 +9,11 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
-  .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; align-items: center; height: 60px; gap: 12px; }
+  .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; align-items: center; height: 60px; gap: 12px; position: sticky; top: 0; z-index: 100; }
   .header-logo { font-size: 15px; font-weight: 600; }
   .header-logo span { color: #4a7c59; }
   .header-tag { font-size: 12px; color: #999; border-left: 1px solid #e5e5e5; padding-left: 12px; }
-  .container { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
   .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
   .page-sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
   .progress-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 2rem; }
@@ -21,19 +21,49 @@
   .prog-card .pc-label { font-size: 11px; color: #999; margin-bottom: 5px; }
   .prog-card .pc-status { font-size: 13px; font-weight: 500; color: #bbb; }
   .prog-card .pc-status.done { color: #3a6b48; }
-  .gen-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; }
+  .gen-box { background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; }
   .gen-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
   .gen-box p { font-size: 13px; color: #666; margin-bottom: 1.25rem; line-height: 1.6; }
-  .gen-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
-  .gen-btn:hover { background: #333; }
-  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .status { margin-top: 1rem; font-size: 13px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn-primary { background: #1a1a1a; color: #fff; }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-outline { background: #fff; color: #1a1a1a; border: 1px solid #ddd; }
+  .btn-outline:hover { border-color: #999; background: #fafafa; }
+  .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-green { background: #4a7c59; color: #fff; }
+  .btn-green:hover { background: #3a6b48; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+  .status { font-size: 13px; }
   .status.ok { color: #3a6b48; }
   .status.err { color: #c0392b; }
   .back-link { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; color: #666; text-decoration: none; margin-bottom: 1.5rem; }
   .back-link:hover { color: #1a1a1a; }
-  .hint-box { padding: 12px 16px; background: #f0f7f2; border: 1px solid #b6d9c3; border-radius: 8px; font-size: 13px; color: #3a6b48; line-height: 1.6; display: none; margin-top: 1rem; }
-  .hint-box.show { display: block; }
+
+  /* Editor */
+  .editor-wrapper { display: none; }
+  .editor-wrapper.show { display: block; }
+  .toolbar { position: sticky; top: 60px; z-index: 90; background: #fff; border: 1px solid #e5e5e5; border-bottom: none; border-radius: 10px 10px 0 0; padding: 10px 14px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .tb-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid #e5e5e5; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #444; transition: all 0.15s; font-family: serif; }
+  .tb-btn:hover { background: #f5f5f3; border-color: #ccc; }
+  .tb-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  .tb-btn-text { width: auto; padding: 0 10px; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 500; }
+  .tb-sep { width: 1px; height: 24px; background: #e5e5e5; margin: 0 4px; }
+  .tb-select { padding: 4px 8px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 12px; font-family: inherit; background: #fff; color: #444; cursor: pointer; }
+
+  .editor-area { border: 1px solid #e5e5e5; border-radius: 0 0 10px 10px; background: #fff; min-height: 600px; padding: 3cm; outline: none; font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #000; }
+  .editor-area:focus { box-shadow: inset 0 0 0 2px #4a7c5920; }
+  .editor-area h1 { font-size: 13pt; text-align: center; margin-bottom: 10pt; }
+  .editor-area h2 { font-size: 11pt; margin-top: 16pt; margin-bottom: 6pt; }
+  .editor-area p { margin-bottom: 8pt; text-align: justify; }
+  .editor-area .center { text-align: center; }
+
+  .action-bar { display: none; background: #fff; border: 1px solid #e5e5e5; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+  .action-bar.show { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .action-bar-label { font-size: 13px; color: #666; flex: 1; }
+
+  @media print { .header, .toolbar, .action-bar, .gen-box, .back-link, .progress-grid { display: none !important; } .editor-area { border: none; padding: 0; } }
 </style>
 </head>
 <body>
@@ -54,14 +84,56 @@
     <div class="prog-card"><div class="pc-label">GROW</div><div class="pc-status" id="p-g">Pendiente</div></div>
   </div>
 
-  <div class="gen-box">
-    <h3>Descargar contrato</h3>
-    <p>Cuando los tres módulos estén completos, genera el borrador con todos los datos rellenados. Se descarga un archivo que puedes abrir y guardar directamente como Word (.docx).</p>
-    <button class="gen-btn" id="gen-btn" disabled onclick="generarContrato()">Generar contrato (.doc)</button>
-    <div class="status" id="status"></div>
-    <div class="hint-box" id="hint-box">
-      ✓ Archivo descargado. Para convertirlo a Word: abre el archivo descargado → Archivo → Guardar como → formato Word (.docx).
+  <div class="gen-box" id="gen-box">
+    <h3>Generar borrador</h3>
+    <p>Cuando los tres módulos estén completos, genera el contrato. Podrás editarlo en pantalla antes de descargar.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="gen-btn" disabled onclick="generarContrato()">Generar contrato</button>
+      <span class="status" id="status"></span>
     </div>
+  </div>
+
+  <!-- Barra de acciones post-generación -->
+  <div class="action-bar" id="action-bar">
+    <div class="action-bar-label">Edita el contrato directamente en el texto. Los cambios son solo para esta versión.</div>
+    <button class="btn btn-outline" onclick="descargarOriginal()" title="Descarga el contrato sin tus ediciones">↓ Descargar original</button>
+    <button class="btn btn-green" onclick="descargarEditado()" title="Descarga el contrato con tus ediciones">↓ Descargar versión editada</button>
+  </div>
+
+  <!-- Editor -->
+  <div class="editor-wrapper" id="editor-wrapper">
+    <div class="toolbar">
+      <!-- Deshacer / Rehacer -->
+      <button class="tb-btn tb-btn-text" onclick="document.execCommand('undo')" title="Deshacer (Ctrl+Z)">↩ Deshacer</button>
+      <button class="tb-btn tb-btn-text" onclick="document.execCommand('redo')" title="Rehacer (Ctrl+Y)">↪ Rehacer</button>
+      <div class="tb-sep"></div>
+      <!-- Formato texto -->
+      <button class="tb-btn" onclick="fmt('bold')" title="Negrita (Ctrl+B)"><strong>N</strong></button>
+      <button class="tb-btn" onclick="fmt('italic')" title="Cursiva (Ctrl+I)"><em>K</em></button>
+      <button class="tb-btn" onclick="fmt('underline')" title="Subrayado (Ctrl+U)"><u>S</u></button>
+      <div class="tb-sep"></div>
+      <!-- Tamaño de fuente -->
+      <select class="tb-select" onchange="fmtSize(this.value)" title="Tamaño de fuente">
+        <option value="">Tamaño</option>
+        <option value="1">8pt</option>
+        <option value="2">10pt</option>
+        <option value="3">11pt</option>
+        <option value="4">13pt</option>
+        <option value="5">16pt</option>
+      </select>
+      <div class="tb-sep"></div>
+      <!-- Alineación -->
+      <button class="tb-btn" onclick="fmt('justifyLeft')" title="Alinear izquierda">≡</button>
+      <button class="tb-btn" onclick="fmt('justifyCenter')" title="Centrar">≡</button>
+      <button class="tb-btn" onclick="fmt('justifyFull')" title="Justificar">≡</button>
+      <div class="tb-sep"></div>
+      <!-- Color -->
+      <input type="color" title="Color de texto" style="width:32px;height:32px;border:1px solid #e5e5e5;border-radius:6px;padding:2px;cursor:pointer;background:#fff;" onchange="fmtColor(this.value)">
+      <div class="tb-sep"></div>
+      <!-- Limpiar formato -->
+      <button class="tb-btn tb-btn-text" onclick="fmt('removeFormat')" title="Limpiar formato">✕ Limpiar formato</button>
+    </div>
+    <div class="editor-area" id="editor-area" contenteditable="true" spellcheck="true"></div>
   </div>
 </div>
 
@@ -71,12 +143,17 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 const params = new URLSearchParams(window.location.search);
 const contratoId = params.get('id');
 let datosAt, datosAr, datosG;
+let htmlOriginal = '';
 
 if (!contratoId) {
   document.querySelector('.container').innerHTML = '<div style="padding:3rem;text-align:center;color:#999;font-size:14px;">Link inválido.</div>';
 }
 
-function fmt(v) { return (v && v.trim && v.trim()) ? v.trim() : '[PENDIENTE]'; }
+function fmt(cmd) { document.getElementById('editor-area').focus(); document.execCommand(cmd, false, null); }
+function fmtSize(val) { if (val) { document.getElementById('editor-area').focus(); document.execCommand('fontSize', false, val); } }
+function fmtColor(val) { document.getElementById('editor-area').focus(); document.execCommand('foreColor', false, val); }
+
+function fmt2(v) { return (v && String(v).trim()) ? String(v).trim() : '[PENDIENTE]'; }
 function fmtDate(s) {
   if (!s) return '[FECHA]';
   const d = new Date(s + 'T12:00:00');
@@ -92,102 +169,61 @@ function calcTermino(inicio, anos) {
 async function cargarDatos() {
   const { data: contrato } = await db.from('contratos').select('*').eq('id', contratoId).maybeSingle();
   if (contrato) document.getElementById('page-sub').textContent = `${contrato.nombre_referencia} — ${contrato.direccion_inmueble}`;
-
   const [{ data: at }, { data: ar }, { data: g }] = await Promise.all([
     db.from('datos_arrendatario').select('*').eq('contrato_id', contratoId).maybeSingle(),
     db.from('datos_arrendadora').select('*').eq('contrato_id', contratoId).maybeSingle(),
     db.from('datos_grow').select('*').eq('contrato_id', contratoId).maybeSingle(),
   ]);
-
   datosAt = at; datosAr = ar; datosG = g;
-
   const setStatus = (id, done) => {
     const el = document.getElementById(id);
     el.className = 'pc-status' + (done ? ' done' : '');
     el.textContent = done ? '✓ Completado' : 'Pendiente';
   };
-  setStatus('p-at', !!at);
-  setStatus('p-ar', !!ar);
-  setStatus('p-g', !!g);
+  setStatus('p-at', !!at); setStatus('p-ar', !!ar); setStatus('p-g', !!g);
   if (at && ar && g) document.getElementById('gen-btn').disabled = false;
 }
 
 function bloque(titulo, ...parrafos) {
-  return `
-    <p style="margin-top:18pt;margin-bottom:6pt;font-weight:bold;font-size:11pt;">${titulo}</p>
-    ${parrafos.map(p => `<p style="margin-bottom:8pt;text-align:justify;font-size:11pt;">${p}</p>`).join('')}
-  `;
+  return `<h2>${titulo}</h2>${parrafos.map(p => `<p>${p}</p>`).join('')}`;
 }
 
-function generarContrato() {
-  const btn = document.getElementById('gen-btn');
-  const status = document.getElementById('status');
-  btn.disabled = true; btn.textContent = 'Generando...'; status.textContent = '';
+function buildHTML(at, ar, g) {
+  const mesesGracia = parseInt(g.g_meses_gracia) || 0;
+  const subarriendoText = g.g_subarriendo === 'restringido'
+    ? 'solo a sociedades o personas relacionadas conforme al artículo cien de la Ley N° 18.045 de Mercado de Valores, y/o a sociedades franquiciadas de la Arrendataria bajo su misma marca, previo aviso por correo electrónico a la Arrendadora'
+    : g.g_subarriendo === 'prohibido'
+    ? 'en ningún caso, quedando expresamente prohibido el subarriendo en cualquiera de sus formas'
+    : 'a terceros, previa autorización escrita de la Arrendadora';
+  const salidaText = g.g_salida_anticipada === 'si'
+    ? `Sin perjuicio de lo anterior, el Arrendatario se reserva el derecho de poner término al presente contrato a partir del mes número ${fmt2(g.g_salida_desde)} de vigencia, dando aviso al Arrendador con al menos ${fmt2(g.g_aviso_salida)} días corridos de anticipación mediante carta certificada.`
+    : '';
+  const gravamenesText = ar.ar_gravamenes && ar.ar_gravamenes.trim()
+    ? `El Arrendador declara que el inmueble registra los siguientes gravámenes según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt2(ar.ar_cbr_codigo)}: ${ar.ar_gravamenes}. El Arrendador se obliga a obtener y entregar a la Arrendataria, dentro de los 30 días corridos desde la suscripción del presente contrato, la correspondiente autorización formal del acreedor hipotecario.`
+    : `El Arrendador declara que el inmueble se encuentra libre de hipotecas, gravámenes, interdicciones y prohibiciones según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt2(ar.ar_cbr_codigo)}.`;
 
-  try {
-    const at = datosAt, ar = datosAr, g = datosG;
-    const mesesGracia = parseInt(g.g_meses_gracia) || 0;
+  let clausulaNum = 0;
+  const NUMS = ['PRIMERA','SEGUNDA','TERCERA','CUARTA','QUINTA','SEXTA','SÉPTIMA','OCTAVA',
+    'NOVENA','DÉCIMA','DÉCIMO PRIMERA','DÉCIMO SEGUNDA','DÉCIMO TERCERA','DÉCIMO CUARTA',
+    'DÉCIMO QUINTA','DÉCIMO SEXTA','DÉCIMO SÉPTIMA','DÉCIMO OCTAVA','DÉCIMO NOVENA','VIGÉSIMA','VIGÉSIMO PRIMERA'];
+  const cn = (titulo) => `${NUMS[clausulaNum++] || 'CLÁUSULA'}: ${titulo.toUpperCase()}`;
 
-    const subarriendoText = g.g_subarriendo === 'restringido'
-      ? 'solo a sociedades o personas relacionadas conforme al artículo cien de la Ley N° 18.045 de Mercado de Valores, y/o a sociedades franquiciadas de la Arrendataria bajo su misma marca, previo aviso por correo electrónico a la Arrendadora'
-      : g.g_subarriendo === 'prohibido'
-      ? 'en ningún caso, quedando expresamente prohibido el subarriendo en cualquiera de sus formas'
-      : 'a terceros, previa autorización escrita de la Arrendadora';
-
-    const salidaText = g.g_salida_anticipada === 'si'
-      ? `Sin perjuicio de lo anterior, el Arrendatario se reserva el derecho de poner término al presente contrato a partir del mes número ${fmt(g.g_salida_desde)} de vigencia, dando aviso al Arrendador con al menos ${fmt(g.g_aviso_salida)} días corridos de anticipación mediante carta certificada.`
-      : '';
-
-    const gravamenesText = ar.ar_gravamenes && ar.ar_gravamenes.trim()
-      ? `El Arrendador declara que el inmueble registra los siguientes gravámenes según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt(ar.ar_cbr_codigo)}: ${ar.ar_gravamenes}. El Arrendador se obliga a obtener y entregar a la Arrendataria, dentro de los 30 días corridos desde la suscripción del presente contrato, la correspondiente autorización formal del acreedor hipotecario.`
-      : `El Arrendador declara que el inmueble se encuentra libre de hipotecas, gravámenes, interdicciones y prohibiciones según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt(ar.ar_cbr_codigo)}.`;
-
-    let clausulaNum = 0;
-    const NUMS = ['PRIMERA','SEGUNDA','TERCERA','CUARTA','QUINTA','SEXTA','SÉPTIMA','OCTAVA',
-      'NOVENA','DÉCIMA','DÉCIMO PRIMERA','DÉCIMO SEGUNDA','DÉCIMO TERCERA','DÉCIMO CUARTA',
-      'DÉCIMO QUINTA','DÉCIMO SEXTA','DÉCIMO SÉPTIMA','DÉCIMO OCTAVA','DÉCIMO NOVENA','VIGÉSIMA','VIGÉSIMO PRIMERA'];
-    const cn = (titulo) => {
-      const num = NUMS[clausulaNum++] || `CLÁUSULA ${clausulaNum}`;
-      return `${num}: ${titulo.toUpperCase()}`;
-    };
-
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-  body { font-family: Arial, sans-serif; font-size: 11pt; margin: 3cm 3cm 3cm 3cm; color: #000; line-height: 1.5; }
-  h1 { font-size: 13pt; text-align: center; margin-bottom: 6pt; }
-  h2 { font-size: 11pt; margin-top: 18pt; margin-bottom: 6pt; }
-  p { margin-bottom: 8pt; text-align: justify; }
-  .center { text-align: center; }
-  .firma-row { display: flex; justify-content: space-between; margin-top: 60pt; }
-  .firma-col { width: 45%; text-align: center; border-top: 1px solid #000; padding-top: 6pt; }
-</style>
-</head>
-<body>
-
+  return `
 <h1>CONTRATO DE ARRENDAMIENTO COMERCIAL</h1>
-<p class="center"><strong>${fmt(ar.ar_razon_social)}</strong></p>
+<p class="center"><strong>${fmt2(ar.ar_razon_social)}</strong></p>
 <p class="center">A</p>
-<p class="center"><strong>${fmt(at.at_razon_social)}</strong></p>
-<br>
-<p>En ${fmt(g.g_ciudad)}, a ${fmtDate(g.g_fecha_firma)}.</p>
+<p class="center"><strong>${fmt2(at.at_razon_social)}</strong></p>
+<p>&nbsp;</p>
+<p>En ${fmt2(g.g_ciudad)}, a ${fmtDate(g.g_fecha_firma)}.</p>
 
 <h2>DECLARACIONES</h2>
 <h2>LAS PARTES</h2>
-
-<p><strong>UNO)</strong> La sociedad ${fmt(ar.ar_razon_social)} es una sociedad con giro inmobiliario, rol único tributario ${fmt(ar.ar_rut_empresa)}, representada según se acreditará por don ${fmt(ar.ar_rep_nombre)}, cédula de identidad número ${fmt(ar.ar_rep_rut)}, domiciliados en ${fmt(ar.ar_domicilio)}, en adelante indistintamente "La Arrendadora" o "el Arrendador", por una parte, y por la otra;</p>
-
-<p><strong>DOS)</strong> ${fmt(at.at_razon_social)} es una sociedad de giro ${fmt(at.at_giro || g.g_giro_especifico)}, rol único tributario ${fmt(at.at_rut_empresa)}, representada por don/doña ${fmt(at.at_rep_nombre)}, ${fmt(at.at_rep_nacionalidad)}, ${fmt(at.at_rep_estado_civil)}, ${fmt(at.at_rep_profesion)}, cédula de identidad número ${fmt(at.at_rep_rut)}, domiciliados para estos efectos en ${fmt(at.at_domicilio)}, en adelante indistintamente "la Arrendataria" o "el Arrendatario", y conjuntamente las "Partes".</p>
+<p><strong>UNO)</strong> La sociedad ${fmt2(ar.ar_razon_social)} es una sociedad con giro inmobiliario, rol único tributario ${fmt2(ar.ar_rut_empresa)}, representada según se acreditará por don ${fmt2(ar.ar_rep_nombre)}, cédula de identidad número ${fmt2(ar.ar_rep_rut)}, domiciliados en ${fmt2(ar.ar_domicilio)}, en adelante indistintamente "La Arrendadora" o "el Arrendador", por una parte, y por la otra;</p>
+<p><strong>DOS)</strong> ${fmt2(at.at_razon_social)} es una sociedad de giro ${fmt2(at.at_giro || g.g_giro_especifico)}, rol único tributario ${fmt2(at.at_rut_empresa)}, representada por don/doña ${fmt2(at.at_rep_nombre)}, ${fmt2(at.at_rep_nacionalidad)}, ${fmt2(at.at_rep_estado_civil)}, ${fmt2(at.at_rep_profesion)}, cédula de identidad número ${fmt2(at.at_rep_rut)}, domiciliados para estos efectos en ${fmt2(at.at_domicilio)}, en adelante indistintamente "la Arrendataria" o "el Arrendatario", y conjuntamente las "Partes".</p>
 
 <h2>EL INMUEBLE</h2>
-
-<p>${fmt(ar.ar_razon_social)} es dueña del local comercial ${fmt(ar.ar_inmueble_local)} ubicado en ${fmt(ar.ar_inmueble_direccion)}. El título de dominio se encuentra inscrito a fojas ${fmt(ar.ar_cbr_fojas)} número ${fmt(ar.ar_cbr_numero)} del Registro de Propiedad del Conservador de Bienes Raíces de Santiago del año ${fmt(ar.ar_cbr_ano)}. Su rol de avalúo fiscal es el número ${fmt(ar.ar_rol_avaluo)}.</p>
-
-<p>El inmueble mide ${fmt(ar.ar_m2_perimetrales)} metros cuadrados perimetrales y ${fmt(ar.ar_m2_utiles)} metros cuadrados de superficie útil. Cuenta con medidor de energía eléctrica N° ${fmt(ar.ar_medidor_enel)}, N° cliente ${fmt(ar.ar_cliente_enel)} de Enel; y medidor de agua N° ${fmt(ar.ar_medidor_agua)}, N° cliente ${fmt(ar.ar_cliente_agua)} de Aguas Andinas. Ambos a nombre de la Arrendadora.</p>
-
+<p>${fmt2(ar.ar_razon_social)} es dueña del local comercial ${fmt2(ar.ar_inmueble_local)} ubicado en ${fmt2(ar.ar_inmueble_direccion)}. El título de dominio se encuentra inscrito a fojas ${fmt2(ar.ar_cbr_fojas)} número ${fmt2(ar.ar_cbr_numero)} del Registro de Propiedad del Conservador de Bienes Raíces de Santiago del año ${fmt2(ar.ar_cbr_ano)}. Su rol de avalúo fiscal es el número ${fmt2(ar.ar_rol_avaluo)}.</p>
+<p>El inmueble mide ${fmt2(ar.ar_m2_perimetrales)} metros cuadrados perimetrales y ${fmt2(ar.ar_m2_utiles)} metros cuadrados de superficie útil. Cuenta con medidor de energía eléctrica N° ${fmt2(ar.ar_medidor_enel)}, N° cliente ${fmt2(ar.ar_cliente_enel)} de Enel; y medidor de agua N° ${fmt2(ar.ar_medidor_agua)}, N° cliente ${fmt2(ar.ar_cliente_agua)} de Aguas Andinas, ambos a nombre de la Arrendadora.</p>
 <p>${gravamenesText}</p>
 
 <h2>CLÁUSULAS</h2>
@@ -195,149 +231,137 @@ function generarContrato() {
 ${bloque(cn('Objeto del Contrato'),
   'Por el presente acto, la Arrendadora entrega en arrendamiento a la Arrendataria, quien acepta y arrienda el Inmueble descrito en las declaraciones precedentes.'
 )}
-
 ${bloque(cn('Destino del Inmueble'),
-  `El Arrendatario destinará el local única y exclusivamente al desarrollo de su giro comercial consistente en ${fmt(g.g_giro_especifico || at.at_giro)}, no pudiendo alterarse o modificarse el mismo sino con expresa autorización escrita de la Arrendadora. Las partes elevan esta obligación al carácter de esencial del presente contrato.`,
+  `El Arrendatario destinará el local única y exclusivamente al desarrollo de su giro comercial consistente en ${fmt2(g.g_giro_especifico || at.at_giro)}, no pudiendo alterarse o modificarse el mismo sino con expresa autorización escrita de la Arrendadora. Las partes elevan esta obligación al carácter de esencial del presente contrato.`,
   'La obtención de permisos, autorizaciones y patentes necesarias para el desarrollo del giro constituye condición esencial del contrato. En caso de copropiedad, los costos y gestiones para obtener autorizaciones de la comunidad serán de cargo del Arrendador.'
 )}
-
 ${bloque(cn('Renta de Arrendamiento'),
-  `La renta mensual del arrendamiento será el equivalente a ${fmt(g.g_renta_uf)} Unidades de Fomento, pagadera por períodos adelantados en su equivalente en pesos al día de su pago, dentro de los cinco primeros días de cada mes mediante voucher de pago electrónico enviado al correo de contacto de la Arrendataria el día 15 del mes anterior. Se considerará para el cálculo de la UF el día 5 de cada mes.`,
+  `La renta mensual del arrendamiento será el equivalente a ${fmt2(g.g_renta_uf)} Unidades de Fomento, pagadera por períodos adelantados en su equivalente en pesos al día de su pago, dentro de los cinco primeros días de cada mes mediante voucher de pago electrónico enviado al correo de contacto de la Arrendataria el día 15 del mes anterior. Se considerará para el cálculo de la UF el día 5 de cada mes.`,
   'En el evento que la Arrendataria se atrase en el pago de tres o más rentas consecutivas, o tres no consecutivas en un período de 12 meses, por períodos de más de 15 días en cada una, la Arrendadora podrá exigir la terminación inmediata del contrato y el pago de todas las rentas impagas hasta la fecha de restitución del inmueble.',
-  `Por cada día o fracción de día de atraso en el pago de la renta, la Arrendataria deberá pagar a título de indemnización moratoria el equivalente a ${fmt(g.g_mora_diaria)} Unidades de Fomento al día de su pago.`
+  `Por cada día o fracción de día de atraso en el pago de la renta, la Arrendataria deberá pagar a título de indemnización moratoria el equivalente a ${fmt2(g.g_mora_diaria)} Unidades de Fomento al día de su pago.`
 )}
-
 ${mesesGracia > 0 ? bloque(cn('Período de Gracia'),
   `Las Partes acuerdan un período de gracia de ${mesesGracia} mes(es) libre(s) de renta. El primer pago de renta se devengará el día ${fmtDate(g.g_fecha_primer_pago)}.`
 ) : ''}
-
 ${bloque(cn('Vigencia del Contrato'),
-  `El presente contrato tendrá una duración de ${fmt(g.g_duracion_anos)} año(s), comenzando el ${fmtDate(g.g_fecha_inicio)} y terminando el ${calcTermino(g.g_fecha_inicio, g.g_duracion_anos)}. El plazo se prorrogará tácita y automáticamente por períodos iguales, salvo aviso contrario de cualquiera de las Partes mediante carta certificada con al menos ${fmt(g.g_aviso_renovacion)} días corridos de anticipación. ${salidaText}`
+  `El presente contrato tendrá una duración de ${fmt2(g.g_duracion_anos)} año(s), comenzando el ${fmtDate(g.g_fecha_inicio)} y terminando el ${calcTermino(g.g_fecha_inicio, g.g_duracion_anos)}. El plazo se prorrogará tácita y automáticamente por períodos iguales, salvo aviso contrario de cualquiera de las Partes mediante carta certificada con al menos ${fmt2(g.g_aviso_renovacion)} días corridos de anticipación. ${salidaText}`
 )}
-
 ${bloque(cn('Cesión del Contrato'),
   'La Arrendadora estará facultada para ceder o transferir sus derechos del presente contrato sin autorización previa de la Arrendataria, debiendo solo notificarle entregándole copia del instrumento en que conste dicha cesión. Lo anterior sin perjuicio de las autorizaciones que corresponda obtener de los acreedores hipotecarios que graven el Inmueble.',
   'En caso de venta del Inmueble, la Arrendataria acepta como Arrendadora al nuevo dueño desde el momento en que se le comunique dicha circunstancia. La Arrendataria no podrá ceder sus derechos sin autorización previa y por escrito de la Arrendadora.'
 )}
-
 ${bloque(cn('Garantía'),
-  `La Arrendataria hace entrega a la Arrendadora de la suma equivalente a ${fmt(g.g_garantia_uf)} Unidades de Fomento como garantía del fiel cumplimiento del contrato. La Arrendadora se obliga a restituirla dentro de los ${fmt(g.g_dias_garantia)} días siguientes al término del contrato. En caso de mora en la restitución, la Arrendadora pagará una multa de ${fmt(g.g_multa_garantia)} Unidades de Fomento por cada día de retraso.`,
-  `Si al término se detectaren daños que requieran reparación, la Arrendadora podrá extender el plazo de devolución hasta en ${fmt(g.g_extension_garantia)} días adicionales, elaborando un presupuesto detallado. Si los costos exceden la garantía, la Arrendataria deberá cubrir la diferencia en ${fmt(g.g_cobro_danos)} días corridos desde la presentación del presupuesto.`
+  `La Arrendataria hace entrega a la Arrendadora de la suma equivalente a ${fmt2(g.g_garantia_uf)} Unidades de Fomento como garantía del fiel cumplimiento del contrato. La Arrendadora se obliga a restituirla dentro de los ${fmt2(g.g_dias_garantia)} días siguientes al término del contrato. En caso de mora en la restitución, la Arrendadora pagará una multa de ${fmt2(g.g_multa_garantia)} Unidades de Fomento por cada día de retraso.`,
+  `Si al término se detectaren daños que requieran reparación, la Arrendadora podrá extender el plazo de devolución hasta en ${fmt2(g.g_extension_garantia)} días adicionales, elaborando un presupuesto detallado. Si los costos exceden la garantía, la Arrendataria deberá cubrir la diferencia en ${fmt2(g.g_cobro_danos)} días corridos desde la presentación del presupuesto.`
 )}
-
 ${bloque(cn('Entrega del Inmueble'),
   'El Inmueble se entrega en este acto como especie o cuerpo cierto, libre de perturbaciones materiales, jurídicas y de ocupantes, estado que la Arrendataria declara conocer y aceptar. El Arrendador se obliga a mantener estas condiciones durante toda la duración del contrato.'
 )}
-
 ${bloque(cn('Otros Pagos'),
-  `i.- El Arrendatario pagará, además de la renta, los gastos comunes ordinarios por el monto referencial de ${fmt(ar.ar_ggcc_monto)}, determinados y cobrados por ${fmt(ar.ar_adm_razon)}, mediante transferencia a ${fmt(ar.ar_adm_mail)}. El Arrendador podrá solicitar comprobantes de pago, debiendo el Arrendatario enviarlos en 3 días corridos.`,
+  `i.- El Arrendatario pagará, además de la renta, los gastos comunes ordinarios por el monto referencial de ${fmt2(ar.ar_ggcc_monto)}, determinados y cobrados por ${fmt2(ar.ar_adm_razon)}, mediante transferencia a ${fmt2(ar.ar_adm_mail)}. El Arrendador podrá solicitar comprobantes de pago, debiendo el Arrendatario enviarlos en 3 días corridos.`,
   'ii.- El Arrendador garantiza que a la fecha de entrega el inmueble estará libre de deudas por gastos comunes, entregando certificado de no deuda vigente.',
   'iii.- El Impuesto Territorial que grave el Inmueble siempre será de cargo de la Arrendadora.'
 )}
-
 ${bloque(cn('Responsabilidad de la Arrendadora'),
   'La Arrendadora no responderá por robos o daños provenientes de incendios, terremotos u otras causas de fuerza mayor, salvo acto u omisión dolosa de su parte. El Arrendador se obliga a efectuar a su costo las reparaciones estructurales, vicios ocultos y filtraciones ajenas al Arrendatario. Si transcurren 2 días corridos desde el aviso sin respuesta, el Arrendatario podrá reparar por su cuenta y descontar los gastos del canon del mes siguiente.'
 )}
-
 ${bloque(cn('Subarriendo'),
   `La Arrendataria podrá subarrendar o ceder el uso del Inmueble ${subarriendoText}. La Arrendataria seguirá siendo responsable del cumplimiento de todas las obligaciones del contrato hasta su completa terminación.`
 )}
-
 ${bloque(cn('Restitución de la Propiedad'),
-  `i.- La Arrendataria se obliga a restituir el Inmueble en un plazo máximo de ${fmt(g.g_plazo_restitucion)} días corridos desde el término del contrato, en el mismo estado en que lo recibió. Por cada día de atraso, pagará ${fmt(g.g_multa_restitucion)} Unidad(es) de Fomento diaria(s) a título de cláusula penal, sin necesidad de requerimiento previo.`,
+  `i.- La Arrendataria se obliga a restituir el Inmueble en un plazo máximo de ${fmt2(g.g_plazo_restitucion)} días corridos desde el término del contrato, en el mismo estado en que lo recibió. Por cada día de atraso pagará ${fmt2(g.g_multa_restitucion)} Unidad(es) de Fomento diaria(s) a título de cláusula penal, sin necesidad de requerimiento previo.`,
   'ii.- La restitución deberá efectuarse con desocupación total, entrega de llaves y exhibición de recibos de pago de gastos comunes y consumos hasta el último día de ocupación.',
   'iii.- Las mejoras introducidas quedarán en beneficio del Inmueble salvo que la Arrendadora solicite su retiro. Los costos de retiro o arreglos imputables a instalaciones no retiradas se descontarán de la garantía.'
 )}
-
 ${bloque(cn('Incumplimiento y Término Anticipado'),
-  `La Arrendadora podrá poner término inmediato al contrato por incumplimiento grave de cualquier obligación, perfeccionándose el término a los ${fmt(g.g_plazo_incumplimiento)} días corridos desde la notificación por correo electrónico. Constituyen incumplimiento grave, entre otros, el no pago oportuno de cualquier concepto pactado, el cambio de destino sin autorización, o el uso del inmueble para actividades ilícitas.`,
-  `En caso de término anticipado imputable a la Arrendataria: 1) Si ocurre entre los meses 1 y 24, deberá pagar la totalidad de rentas pendientes hasta el mes 24, con un mínimo de ${fmt(g.g_indemnizacion_min)} rentas. 2) Si ocurre después del mes 24, deberá pagar ${fmt(g.g_indemnizacion_post)} rentas de arrendamiento.`
+  `La Arrendadora podrá poner término inmediato al contrato por incumplimiento grave de cualquier obligación, perfeccionándose el término a los ${fmt2(g.g_plazo_incumplimiento)} días corridos desde la notificación por correo electrónico. Constituyen incumplimiento grave, entre otros, el no pago oportuno de cualquier concepto pactado, el cambio de destino sin autorización, o el uso del inmueble para actividades ilícitas.`,
+  `En caso de término anticipado imputable a la Arrendataria: 1) Si ocurre entre los meses 1 y 24, deberá pagar la totalidad de rentas pendientes hasta el mes 24, con un mínimo de ${fmt2(g.g_indemnizacion_min)} rentas. 2) Si ocurre después del mes 24, deberá pagar ${fmt2(g.g_indemnizacion_post)} rentas de arrendamiento.`
 )}
-
 ${bloque(cn('Caso Fortuito o Fuerza Mayor'),
   'Ninguna de las Partes será responsable por incumplimiento derivado de caso fortuito o fuerza mayor conforme al artículo 45 del Código Civil. Si dichos eventos impiden el uso del Inmueble para el destino pactado por más de 60 días corridos, la Arrendataria podrá poner término al contrato sin indemnización, mediante aviso escrito.'
 )}
-
 ${bloque(cn('Cumplimiento Normativo y Prevención de Delitos'),
   'Las Partes declaran haber tomado conocimiento de las disposiciones de la Ley 20.393 y la Ley 21.595 sobre responsabilidad penal de personas jurídicas, comprometiéndose a no utilizar recursos del presente contrato para propósitos ilegales, lavado de activos o financiamiento del terrorismo.'
 )}
-
 ${bloque(cn('Inspecciones al Inmueble'),
   'La Arrendataria permitirá el acceso de la Arrendadora para inspeccionar el Inmueble con aviso previo de al menos 2 días corridos, en horarios que no entorpezcan la operación del negocio.'
 )}
-
 ${bloque(cn('Avisos y Notificaciones'),
-  `Arrendadora: ${fmt(ar.ar_razon_social)}, ${fmt(ar.ar_domicilio)}. Correo: ${fmt(ar.ar_mail)}${ar.ar_mail_copia ? ', con copia a ' + ar.ar_mail_copia : ''}.`,
-  `Arrendatario: ${fmt(at.at_razon_social)}, ${fmt(at.at_domicilio)}. Correo: ${fmt(at.at_mail_empresa || at.at_rep_mail)}.`,
+  `Arrendadora: ${fmt2(ar.ar_razon_social)}, ${fmt2(ar.ar_domicilio)}. Correo: ${fmt2(ar.ar_mail)}${ar.ar_mail_copia ? ', con copia a ' + ar.ar_mail_copia : ''}.`,
+  `Arrendatario: ${fmt2(at.at_razon_social)}, ${fmt2(at.at_domicilio)}. Correo: ${fmt2(at.at_mail_empresa || at.at_rep_mail)}.`,
   'Cualquier cambio de domicilio deberá comunicarse por carta certificada notarialmente con 10 días de anticipación.'
 )}
-
 ${bloque(cn('Confidencialidad'),
   'Las partes se obligan a tratar como confidencial toda información relativa al presente contrato durante toda su vigencia y por 3 años adicionales desde su terminación.'
 )}
-
 ${bloque(cn('Domicilio y Ley Aplicable'),
   'Las Partes fijan domicilio en la ciudad y comuna de Santiago y se someten a la competencia de sus Tribunales Ordinarios de Justicia y a la legislación chilena.'
 )}
-
 ${bloque(cn('Personerías'),
-  `i.- La personería de don ${fmt(ar.ar_rep_nombre)} para representar a ${fmt(ar.ar_razon_social)} consta de escritura pública de fecha ${fmtDate(ar.ar_personeria_fecha)}, otorgada en la Notaría de ${fmt(ar.ar_personeria_notaria)}, repertorio N° ${fmt(ar.ar_personeria_repertorio)}.`,
-  `ii.- La personería de don/doña ${fmt(at.at_rep_nombre)} para representar a ${fmt(at.at_razon_social)} consta de escritura pública de fecha ${fmtDate(at.at_personeria_fecha)}, otorgada en la Notaría de ${fmt(at.at_personeria_notaria)}, repertorio N° ${fmt(at.at_personeria_repertorio)}.`
+  `i.- La personería de don ${fmt2(ar.ar_rep_nombre)} para representar a ${fmt2(ar.ar_razon_social)} consta de escritura pública de fecha ${fmtDate(ar.ar_personeria_fecha)}, otorgada en la Notaría de ${fmt2(ar.ar_personeria_notaria)}, repertorio N° ${fmt2(ar.ar_personeria_repertorio)}.`,
+  `ii.- La personería de don/doña ${fmt2(at.at_rep_nombre)} para representar a ${fmt2(at.at_razon_social)} consta de escritura pública de fecha ${fmtDate(at.at_personeria_fecha)}, otorgada en la Notaría de ${fmt2(at.at_personeria_notaria)}, repertorio N° ${fmt2(at.at_personeria_repertorio)}.`
 )}
-
 ${at.at_aval_nombre && at.at_aval_nombre.trim() ? bloque('FIADOR Y CODEUDOR SOLIDARIO',
-  `Presente a este acto don/doña ${fmt(at.at_aval_nombre)}, RUT ${fmt(at.at_aval_rut)}, domiciliado/a en ${fmt(at.at_aval_domicilio)}, quien por este acto se constituye en fiador y codeudor solidario de todas las obligaciones que asume el Arrendatario en el presente contrato.`
+  `Presente a este acto don/doña ${fmt2(at.at_aval_nombre)}, RUT ${fmt2(at.at_aval_rut)}, domiciliado/a en ${fmt2(at.at_aval_domicilio)}, quien por este acto se constituye en fiador y codeudor solidario de todas las obligaciones que asume el Arrendatario en el presente contrato.`
 ) : ''}
-
 ${g.g_notas && g.g_notas.trim() ? bloque('NOTAS ADICIONALES', g.g_notas) : ''}
 
 <h2>DECLARACIONES DE CIERRE</h2>
 <p>El Arrendador declara ser dueño de la propiedad y haber entregado al Arrendatario la documentación necesaria para su verificación. El Arrendatario declara haber verificado todos los antecedentes legales de la propiedad.</p>
 <p>El presente contrato se firma en dos ejemplares del mismo tenor y fecha, quedando uno en poder de cada parte.</p>
-
-<br><br><br>
+<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
 <table width="100%" style="border-collapse:collapse;">
   <tr>
     <td width="45%" style="border-top:1px solid #000;padding-top:8pt;text-align:center;font-size:10pt;">
-      ${fmt(ar.ar_rep_nombre)}<br>
-      p.p. ${fmt(ar.ar_razon_social)}<br>
-      <em>ARRENDADORA</em>
+      ${fmt2(ar.ar_rep_nombre)}<br>p.p. ${fmt2(ar.ar_razon_social)}<br><em>ARRENDADORA</em>
     </td>
     <td width="10%"></td>
     <td width="45%" style="border-top:1px solid #000;padding-top:8pt;text-align:center;font-size:10pt;">
-      ${fmt(at.at_rep_nombre)}<br>
-      p.p. ${fmt(at.at_razon_social)}<br>
-      <em>ARRENDATARIA</em>
+      ${fmt2(at.at_rep_nombre)}<br>p.p. ${fmt2(at.at_razon_social)}<br><em>ARRENDATARIA</em>
     </td>
   </tr>
-</table>
+</table>`;
+}
 
-</body>
-</html>`;
+function descargar(contenidoHTML, sufijo) {
+  const nombreArchivo = `Contrato_${(datosAr?.ar_inmueble_local || contratoId).replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}${sufijo}.doc`;
+  const wrapper = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      body{font-family:Arial,sans-serif;font-size:11pt;margin:3cm;color:#000;line-height:1.5;}
+      h1{font-size:13pt;text-align:center;margin-bottom:10pt;}
+      h2{font-size:11pt;margin-top:16pt;margin-bottom:6pt;}
+      p{margin-bottom:8pt;text-align:justify;}
+      .center{text-align:center;}
+    </style></head><body>${contenidoHTML}</body></html>`;
+  const blob = new Blob([wrapper], { type: 'application/msword;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombreArchivo;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
 
-    const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const nombreArchivo = `Contrato_${(datosAr?.ar_inmueble_local || contratoId).replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.doc`;
-    a.download = nombreArchivo;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+function descargarOriginal() { descargar(htmlOriginal, '_original'); }
+function descargarEditado() { descargar(document.getElementById('editor-area').innerHTML, '_editado'); }
 
-    document.getElementById('status').className = 'status ok';
-    document.getElementById('status').textContent = '✓ Contrato generado y descargado correctamente.';
-    document.getElementById('hint-box').classList.add('show');
-
+function generarContrato() {
+  const btn = document.getElementById('gen-btn');
+  const status = document.getElementById('status');
+  btn.disabled = true; btn.textContent = 'Generando...'; status.textContent = '';
+  try {
+    htmlOriginal = buildHTML(datosAt, datosAr, datosG);
+    document.getElementById('editor-area').innerHTML = htmlOriginal;
+    document.getElementById('editor-wrapper').classList.add('show');
+    document.getElementById('action-bar').classList.add('show');
+    document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    status.className = 'status ok';
+    status.textContent = '✓ Contrato generado. Edítalo abajo y descarga cuando esté listo.';
   } catch(e) {
-    document.getElementById('status').className = 'status err';
-    document.getElementById('status').textContent = 'Error al generar: ' + e.message;
+    status.className = 'status err';
+    status.textContent = 'Error al generar: ' + e.message;
     console.error(e);
   }
-
-  btn.disabled = false;
-  btn.textContent = 'Generar contrato (.doc)';
+  btn.disabled = false; btn.textContent = 'Regenerar contrato';
 }
 
 if (contratoId) cargarDatos();
