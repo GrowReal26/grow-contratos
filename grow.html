@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GROW Real — Condiciones del Contrato</title>
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+  .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; align-items: center; height: 60px; gap: 12px; }
+  .header-logo { font-size: 15px; font-weight: 600; }
+  .header-logo span { color: #4a7c59; }
+  .header-tag { font-size: 12px; color: #999; border-left: 1px solid #e5e5e5; padding-left: 12px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin: 1.75rem 0 0.85rem; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+  .section-label:first-of-type { margin-top: 0; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fields.single { grid-template-columns: 1fr; }
+  .fields.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: #555; }
+  .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a1a; }
+  .field .hint { font-size: 11px; color: #aaa; line-height: 1.4; }
+  .already-saved { display: none; padding: 12px 16px; background: #f0f7f2; border: 1px solid #b6d9c3; border-radius: 8px; font-size: 13px; color: #3a6b48; margin-bottom: 1.5rem; }
+  .already-saved.show { display: block; }
+  .save-row { margin-top: 2rem; display: flex; align-items: center; gap: 12px; }
+  .save-btn { padding: 12px 28px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .save-btn:hover { background: #333; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { font-size: 13px; }
+  .status.ok { color: #3a6b48; }
+  .status.err { color: #c0392b; }
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } .fields.triple { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">GROW <span>Real</span></div>
+  <div class="header-tag">Condiciones del Contrato</div>
+</div>
+
+<div class="container">
+  <div class="page-title">Condiciones comerciales y legales</div>
+  <div class="page-sub" id="page-sub">Complete las condiciones pactadas con el arrendatario para este contrato.</div>
+
+  <div class="already-saved" id="already-saved">
+    ✓ Condiciones ya guardadas anteriormente. Puedes modificarlas y volver a guardar.
+  </div>
+
+  <div class="section-label">Firma y lugar</div>
+  <div class="fields">
+    <div class="field"><label>Fecha de firma del contrato</label><input type="date" id="g_fecha_firma"></div>
+    <div class="field"><label>Ciudad</label><input type="text" id="g_ciudad" value="Santiago"></div>
+  </div>
+
+  <div class="section-label">Renta y mora</div>
+  <div class="fields triple">
+    <div class="field"><label>Renta mensual (UF)</label><input type="number" id="g_renta_uf" placeholder="Ej: 35" step="0.1" min="0"></div>
+    <div class="field"><label>Garantía (UF)</label><input type="number" id="g_garantia_uf" placeholder="Ej: 35" step="0.1" min="0"><span class="hint">Normalmente 1 mes de renta.</span></div>
+    <div class="field"><label>Mora por atraso en renta (UF/día)</label><input type="number" id="g_mora_diaria" value="0.5" step="0.1" min="0"></div>
+  </div>
+
+  <div class="section-label">Plazo del contrato</div>
+  <div class="fields triple">
+    <div class="field"><label>Fecha de inicio de vigencia</label><input type="date" id="g_fecha_inicio"></div>
+    <div class="field"><label>Duración (años)</label><input type="number" id="g_duracion_anos" placeholder="Ej: 2" min="1"></div>
+    <div class="field"><label>Aviso de no renovación (días)</label><input type="number" id="g_aviso_renovacion" value="60" min="1"></div>
+  </div>
+
+  <div class="section-label">Período de gracia</div>
+  <div class="fields">
+    <div class="field"><label>Meses de gracia</label><input type="number" id="g_meses_gracia" value="0" min="0"><span class="hint">Ingresar 0 si no hay período de gracia.</span></div>
+    <div class="field"><label>Fecha del primer pago de renta</label><input type="date" id="g_fecha_primer_pago"><span class="hint">Completar solo si hay gracia.</span></div>
+  </div>
+
+  <div class="section-label">Destino del inmueble</div>
+  <div class="fields single">
+    <div class="field"><label>Giro específico del local</label><input type="text" id="g_giro_especifico" placeholder="Ej: operación de farmacia, venta de productos farmacéuticos y servicios de salud"></div>
+  </div>
+
+  <div class="section-label">Restitución</div>
+  <div class="fields">
+    <div class="field"><label>Plazo restitución (días corridos)</label><input type="number" id="g_plazo_restitucion" value="30" min="1"></div>
+    <div class="field"><label>Multa por atraso en restitución (UF/día)</label><input type="number" id="g_multa_restitucion" value="1" step="0.5" min="0"></div>
+  </div>
+
+  <div class="section-label">Garantía — devolución y daños</div>
+  <div class="fields">
+    <div class="field"><label>Días para devolver garantía</label><input type="number" id="g_dias_garantia" value="30" min="1"></div>
+    <div class="field"><label>Multa mora devolución garantía (UF/día)</label><input type="number" id="g_multa_garantia" value="3.5" step="0.5" min="0"></div>
+    <div class="field"><label>Extensión máx. por daños (días adicionales)</label><input type="number" id="g_extension_garantia" value="90" min="1"></div>
+    <div class="field"><label>Plazo cobro diferencia por daños (días)</label><input type="number" id="g_cobro_danos" value="30" min="1"></div>
+  </div>
+
+  <div class="section-label">Término anticipado imputable al arrendatario</div>
+  <div class="fields triple">
+    <div class="field"><label>Mínimo de rentas (meses 1–24)</label><input type="number" id="g_indemnizacion_min" value="4" min="1"></div>
+    <div class="field"><label>Rentas post mes 24</label><input type="number" id="g_indemnizacion_post" value="3" min="1"></div>
+    <div class="field"><label>Días notificación incumplimiento</label><input type="number" id="g_plazo_incumplimiento" value="15" min="1"></div>
+  </div>
+
+  <div class="section-label">Salida anticipada del arrendatario</div>
+  <div class="fields triple">
+    <div class="field"><label>¿Se permite?</label>
+      <select id="g_salida_anticipada" onchange="toggleSalida()">
+        <option value="no">No se permite</option>
+        <option value="si">Sí, con condiciones</option>
+      </select>
+    </div>
+    <div class="field" id="field_salida_desde" style="display:none"><label>A partir del mes N°</label><input type="number" id="g_salida_desde" value="24" min="1"></div>
+    <div class="field" id="field_aviso_salida" style="display:none"><label>Aviso con (días)</label><input type="number" id="g_aviso_salida" value="120" min="1"></div>
+  </div>
+
+  <div class="section-label">Subarriendo</div>
+  <div class="fields single">
+    <div class="field"><label>Condiciones de subarriendo</label>
+      <select id="g_subarriendo">
+        <option value="restringido">Solo a relacionadas y franquiciadas (recomendado)</option>
+        <option value="prohibido">Prohibido</option>
+        <option value="libre">Libre con autorización escrita</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-label">Notas adicionales</div>
+  <div class="fields single">
+    <div class="field">
+      <label>Condiciones especiales pactadas</label>
+      <textarea id="g_notas" placeholder="Cualquier condición especial que deba reflejarse en el contrato..."></textarea>
+    </div>
+  </div>
+
+  <div class="save-row">
+    <button class="save-btn" id="save-btn" onclick="guardar()">Guardar condiciones</button>
+    <span class="status" id="status"></span>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const params = new URLSearchParams(window.location.search);
+const contratoId = params.get('id');
+
+if (!contratoId) {
+  document.querySelector('.container').innerHTML = '<div style="padding:3rem;text-align:center;color:#999;font-size:14px;">Link inválido. Solicita un nuevo link a GROW Real.</div>';
+}
+
+const CAMPOS = ['g_fecha_firma','g_ciudad','g_renta_uf','g_garantia_uf','g_mora_diaria',
+  'g_fecha_inicio','g_duracion_anos','g_aviso_renovacion','g_meses_gracia','g_fecha_primer_pago',
+  'g_plazo_restitucion','g_multa_restitucion','g_indemnizacion_min','g_indemnizacion_post',
+  'g_plazo_incumplimiento','g_dias_garantia','g_multa_garantia','g_extension_garantia',
+  'g_cobro_danos','g_giro_especifico','g_salida_anticipada','g_salida_desde','g_aviso_salida',
+  'g_subarriendo','g_notas'];
+
+function toggleSalida() {
+  const show = document.getElementById('g_salida_anticipada').value === 'si';
+  document.getElementById('field_salida_desde').style.display = show ? '' : 'none';
+  document.getElementById('field_aviso_salida').style.display = show ? '' : 'none';
+}
+
+async function cargarDatos() {
+  const { data } = await db.from('datos_grow').select('*').eq('contrato_id', contratoId).maybeSingle();
+  if (data) {
+    CAMPOS.forEach(c => { const el = document.getElementById(c); if (el && data[c] !== null && data[c] !== undefined) el.value = data[c]; });
+    document.getElementById('already-saved').classList.add('show');
+    toggleSalida();
+  }
+  const { data: contrato } = await db.from('contratos').select('nombre_referencia,direccion_inmueble').eq('id', contratoId).maybeSingle();
+  if (contrato) document.getElementById('page-sub').textContent = `Contrato: ${contrato.nombre_referencia} — ${contrato.direccion_inmueble}`;
+}
+
+async function guardar() {
+  const btn = document.getElementById('save-btn');
+  const status = document.getElementById('status');
+  btn.disabled = true; btn.textContent = 'Guardando...'; status.textContent = '';
+
+  const datos = { contrato_id: contratoId };
+  CAMPOS.forEach(c => { const el = document.getElementById(c); if (el) datos[c] = el.value; });
+
+  const { data: existing } = await db.from('datos_grow').select('id').eq('contrato_id', contratoId).maybeSingle();
+  let error;
+  if (existing) {
+    ({ error } = await db.from('datos_grow').update(datos).eq('contrato_id', contratoId));
+  } else {
+    ({ error } = await db.from('datos_grow').insert(datos));
+  }
+
+  btn.disabled = false; btn.textContent = 'Guardar condiciones';
+  if (error) { status.className = 'status err'; status.textContent = 'Error: ' + error.message; }
+  else { status.className = 'status ok'; status.textContent = '✓ Condiciones guardadas correctamente.'; document.getElementById('already-saved').classList.add('show'); }
+}
+
+if (contratoId) cargarDatos();
+</script>
+</body>
+</html>

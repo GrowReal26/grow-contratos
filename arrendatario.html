@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GROW Real — Datos Arrendatario</title>
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+  .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; align-items: center; height: 60px; gap: 12px; }
+  .header-logo { font-size: 15px; font-weight: 600; }
+  .header-logo span { color: #4a7c59; }
+  .header-tag { font-size: 12px; color: #999; border-left: 1px solid #e5e5e5; padding-left: 12px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin: 1.75rem 0 0.85rem; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+  .section-label:first-of-type { margin-top: 0; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fields.single { grid-template-columns: 1fr; }
+  .fields.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: #555; }
+  .field input, .field select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; }
+  .field input:focus, .field select:focus { outline: none; border-color: #1a1a1a; }
+  .field .hint { font-size: 11px; color: #aaa; }
+  .field.optional label::after { content: ' (opcional)'; font-weight: 400; color: #bbb; }
+  .save-row { margin-top: 2rem; display: flex; align-items: center; gap: 12px; }
+  .save-btn { padding: 12px 28px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .save-btn:hover { background: #333; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { font-size: 13px; }
+  .status.ok { color: #3a6b48; }
+  .status.err { color: #c0392b; }
+  .already-saved { display: none; padding: 12px 16px; background: #f0f7f2; border: 1px solid #b6d9c3; border-radius: 8px; font-size: 13px; color: #3a6b48; margin-bottom: 1.5rem; }
+  .already-saved.show { display: block; }
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } .fields.triple { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">GROW <span>Real</span></div>
+  <div class="header-tag">Formulario Arrendatario</div>
+</div>
+
+<div class="container">
+  <div class="page-title">Sus datos como arrendatario</div>
+  <div class="page-sub" id="page-sub">Complete el formulario con los datos de su empresa y representante legal. La información se guarda automáticamente al hacer click en Guardar.</div>
+
+  <div class="already-saved" id="already-saved">
+    ✓ Ya guardaste tus datos anteriormente. Puedes modificarlos y volver a guardar si es necesario.
+  </div>
+
+  <div class="section-label">Datos de la empresa</div>
+  <div class="fields">
+    <div class="field"><label>Razón social</label><input type="text" id="at_razon_social" placeholder="Ej: Comercial XYZ SpA"></div>
+    <div class="field"><label>RUT empresa</label><input type="text" id="at_rut_empresa" placeholder="Ej: 76.123.456-7"></div>
+    <div class="field"><label>Giro comercial</label><input type="text" id="at_giro" placeholder="Ej: venta de productos farmacéuticos"></div>
+    <div class="field"><label>Domicilio legal</label><input type="text" id="at_domicilio" placeholder="Calle, número, comuna"></div>
+    <div class="field"><label>Correo electrónico empresa</label><input type="email" id="at_mail_empresa" placeholder="contacto@empresa.cl"></div>
+    <div class="field"><label>Teléfono de contacto</label><input type="text" id="at_telefono" placeholder="+56 9 XXXX XXXX"></div>
+  </div>
+
+  <div class="section-label">Representante legal</div>
+  <div class="fields triple">
+    <div class="field"><label>Nombre completo</label><input type="text" id="at_rep_nombre" placeholder="Nombre y apellidos"></div>
+    <div class="field"><label>RUT representante</label><input type="text" id="at_rep_rut" placeholder="Ej: 12.345.678-9"></div>
+    <div class="field"><label>Nacionalidad</label><input type="text" id="at_rep_nacionalidad" placeholder="Ej: chileno/a"></div>
+    <div class="field"><label>Estado civil</label>
+      <select id="at_rep_estado_civil">
+        <option value="">Seleccionar</option>
+        <option>soltero/a</option><option>casado/a</option><option>divorciado/a</option><option>viudo/a</option>
+      </select>
+    </div>
+    <div class="field"><label>Profesión / cargo</label><input type="text" id="at_rep_profesion" placeholder="Ej: ingeniero, gerente"></div>
+    <div class="field"><label>Correo representante</label><input type="email" id="at_rep_mail" placeholder="nombre@empresa.cl"></div>
+  </div>
+
+  <div class="section-label">Escritura de personería</div>
+  <div class="fields triple">
+    <div class="field"><label>Fecha de la escritura</label><input type="date" id="at_personeria_fecha"></div>
+    <div class="field"><label>Nombre del notario</label><input type="text" id="at_personeria_notaria" placeholder="Nombre del notario"></div>
+    <div class="field"><label>Repertorio N°</label><input type="text" id="at_personeria_repertorio" placeholder="Ej: 1234/2023"></div>
+  </div>
+
+  <div class="section-label">Aval / Fiador <span style="font-size:11px;color:#bbb;text-transform:none;font-weight:400;letter-spacing:0">(completar solo si fue solicitado)</span></div>
+  <div class="fields">
+    <div class="field optional"><label>Nombre completo aval</label><input type="text" id="at_aval_nombre" placeholder="Dejar en blanco si no aplica"></div>
+    <div class="field optional"><label>RUT aval</label><input type="text" id="at_aval_rut" placeholder="Ej: 12.345.678-9"></div>
+    <div class="field optional"><label>Correo aval</label><input type="email" id="at_aval_mail" placeholder="aval@mail.com"></div>
+    <div class="field optional"><label>Domicilio aval</label><input type="text" id="at_aval_domicilio" placeholder="Calle, número, comuna"></div>
+  </div>
+
+  <div class="save-row">
+    <button class="save-btn" id="save-btn" onclick="guardar()">Guardar datos</button>
+    <span class="status" id="status"></span>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const params = new URLSearchParams(window.location.search);
+const contratoId = params.get('id');
+
+if (!contratoId) {
+  document.querySelector('.container').innerHTML = '<div style="padding:3rem;text-align:center;color:#999;font-size:14px;">Link inválido. Solicita un nuevo link a GROW Real.</div>';
+}
+
+const CAMPOS = ['at_razon_social','at_rut_empresa','at_giro','at_domicilio','at_mail_empresa','at_telefono',
+  'at_rep_nombre','at_rep_rut','at_rep_nacionalidad','at_rep_estado_civil','at_rep_profesion','at_rep_mail',
+  'at_personeria_fecha','at_personeria_notaria','at_personeria_repertorio',
+  'at_aval_nombre','at_aval_rut','at_aval_mail','at_aval_domicilio'];
+
+async function cargarDatos() {
+  const { data } = await db.from('datos_arrendatario').select('*').eq('contrato_id', contratoId).maybeSingle();
+  if (data) {
+    CAMPOS.forEach(c => { const el = document.getElementById(c); if (el && data[c]) el.value = data[c]; });
+    document.getElementById('already-saved').classList.add('show');
+  }
+  const { data: contrato } = await db.from('contratos').select('nombre_referencia,direccion_inmueble').eq('id', contratoId).maybeSingle();
+  if (contrato) {
+    document.getElementById('page-sub').textContent = `Contrato: ${contrato.nombre_referencia} — ${contrato.direccion_inmueble}`;
+  }
+}
+
+async function guardar() {
+  const btn = document.getElementById('save-btn');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+  status.textContent = '';
+
+  const datos = { contrato_id: contratoId };
+  CAMPOS.forEach(c => { const el = document.getElementById(c); if (el) datos[c] = el.value; });
+
+  const { data: existing } = await db.from('datos_arrendatario').select('id').eq('contrato_id', contratoId).maybeSingle();
+
+  let error;
+  if (existing) {
+    ({ error } = await db.from('datos_arrendatario').update(datos).eq('contrato_id', contratoId));
+  } else {
+    ({ error } = await db.from('datos_arrendatario').insert(datos));
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Guardar datos';
+
+  if (error) {
+    status.className = 'status err';
+    status.textContent = 'Error al guardar: ' + error.message;
+  } else {
+    status.className = 'status ok';
+    status.textContent = '✓ Datos guardados correctamente.';
+    document.getElementById('already-saved').classList.add('show');
+  }
+}
+
+if (contratoId) cargarDatos();
+</script>
+</body>
+</html>

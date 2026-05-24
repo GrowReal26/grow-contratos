@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GROW Real — Datos Arrendadora</title>
+<script src="supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+  .header { background: #fff; border-bottom: 1px solid #e5e5e5; padding: 0 2rem; display: flex; align-items: center; height: 60px; gap: 12px; }
+  .header-logo { font-size: 15px; font-weight: 600; }
+  .header-logo span { color: #4a7c59; }
+  .header-tag { font-size: 12px; color: #999; border-left: 1px solid #e5e5e5; padding-left: 12px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin: 1.75rem 0 0.85rem; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+  .section-label:first-of-type { margin-top: 0; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .fields.single { grid-template-columns: 1fr; }
+  .fields.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: #555; }
+  .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a1a; }
+  .field .hint { font-size: 11px; color: #aaa; line-height: 1.4; }
+  .warning-box { padding: 12px 16px; background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; font-size: 13px; color: #7a5c00; margin-bottom: 1.5rem; line-height: 1.5; }
+  .save-row { margin-top: 2rem; display: flex; align-items: center; gap: 12px; }
+  .save-btn { padding: 12px 28px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .save-btn:hover { background: #333; }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { font-size: 13px; }
+  .status.ok { color: #3a6b48; }
+  .status.err { color: #c0392b; }
+  .already-saved { display: none; padding: 12px 16px; background: #f0f7f2; border: 1px solid #b6d9c3; border-radius: 8px; font-size: 13px; color: #3a6b48; margin-bottom: 1.5rem; }
+  .already-saved.show { display: block; }
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } .fields.triple { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">GROW <span>Real</span></div>
+  <div class="header-tag">Formulario Arrendadora</div>
+</div>
+
+<div class="container">
+  <div class="page-title">Datos de la propiedad y arrendadora</div>
+  <div class="page-sub" id="page-sub">Complete los datos del inmueble y de la sociedad arrendadora.</div>
+
+  <div class="already-saved" id="already-saved">
+    ✓ Datos ya guardados anteriormente. Puedes modificarlos y volver a guardar.
+  </div>
+
+  <div class="section-label">Datos de la arrendadora</div>
+  <div class="fields">
+    <div class="field"><label>Razón social</label><input type="text" id="ar_razon_social" value="Arrendamientos Comerciales SpA"></div>
+    <div class="field"><label>RUT empresa</label><input type="text" id="ar_rut_empresa" value="76.454.309-2"></div>
+    <div class="field"><label>Representante legal</label><input type="text" id="ar_rep_nombre" value="Edward Robeson Fernández"></div>
+    <div class="field"><label>RUT representante</label><input type="text" id="ar_rep_rut" value="9.979.115-2"></div>
+    <div class="field"><label>Domicilio</label><input type="text" id="ar_domicilio" value="Flor de Azucenas 111, oficina 121, Las Condes"></div>
+    <div class="field"><label>Correo electrónico</label><input type="email" id="ar_mail" value="contacto@growreal.cl"></div>
+    <div class="field"><label>Correo en copia</label><input type="email" id="ar_mail_copia" value="rruiz@eurocorp.cl"></div>
+    <div class="field"><label>Teléfono</label><input type="text" id="ar_telefono" placeholder="+56 9 XXXX XXXX"></div>
+  </div>
+
+  <div class="section-label">Cuenta bancaria para pago de renta</div>
+  <div class="fields triple">
+    <div class="field"><label>Banco</label><input type="text" id="ar_banco" placeholder="Ej: Banco de Chile"></div>
+    <div class="field"><label>Tipo de cuenta</label>
+      <select id="ar_tipo_cuenta">
+        <option value="">Seleccionar</option>
+        <option>Cuenta corriente</option><option>Cuenta vista</option><option>Cuenta de ahorro</option>
+      </select>
+    </div>
+    <div class="field"><label>Número de cuenta</label><input type="text" id="ar_cuenta" placeholder="Ej: 00123456789"></div>
+  </div>
+
+  <div class="section-label">Personería de la arrendadora</div>
+  <div class="fields triple">
+    <div class="field"><label>Fecha escritura</label><input type="date" id="ar_personeria_fecha"></div>
+    <div class="field"><label>Nombre del notario</label><input type="text" id="ar_personeria_notaria" placeholder="Ej: Hernán Cuadra Gazmuri"></div>
+    <div class="field"><label>Repertorio N°</label><input type="text" id="ar_personeria_repertorio" placeholder="Ej: 5432/2022"></div>
+  </div>
+
+  <div class="section-label">Identificación del inmueble</div>
+  <div class="fields">
+    <div class="field"><label>Dirección del local</label><input type="text" id="ar_inmueble_direccion" placeholder="Calle, número, local, comuna"></div>
+    <div class="field"><label>Número o nombre del local</label><input type="text" id="ar_inmueble_local" placeholder="Ej: Local 1"></div>
+    <div class="field"><label>Rol avalúo fiscal</label><input type="text" id="ar_rol_avaluo" placeholder="Ej: 1234-56"></div>
+    <div class="field"><label>M² perimetrales</label><input type="text" id="ar_m2_perimetrales" placeholder="Ej: 70"></div>
+    <div class="field"><label>M² superficie útil</label><input type="text" id="ar_m2_utiles" placeholder="Ej: 65"></div>
+  </div>
+  <div class="fields triple" style="margin-top:14px">
+    <div class="field"><label>Fojas CBR</label><input type="text" id="ar_cbr_fojas" placeholder="Ej: 55061"></div>
+    <div class="field"><label>Número CBR</label><input type="text" id="ar_cbr_numero" placeholder="Ej: 79917"></div>
+    <div class="field"><label>Año CBR</label><input type="text" id="ar_cbr_ano" placeholder="Ej: 2019"></div>
+    <div class="field"><label>N° medidor Enel</label><input type="text" id="ar_medidor_enel" placeholder="Ej: 3358943-3"></div>
+    <div class="field"><label>N° cliente Enel</label><input type="text" id="ar_cliente_enel" placeholder="N° cliente"></div>
+  </div>
+  <div class="fields triple" style="margin-top:14px">
+    <div class="field"><label>N° medidor Aguas Andinas</label><input type="text" id="ar_medidor_agua" placeholder="Ej: 2702682-6"></div>
+    <div class="field"><label>N° cliente Aguas Andinas</label><input type="text" id="ar_cliente_agua" placeholder="N° cliente"></div>
+  </div>
+
+  <div class="section-label">Gravámenes e hipotecas</div>
+  <div class="warning-box">
+    ⚠️ Si el inmueble tiene hipoteca con prohibición de arrendar, debe obtenerse autorización escrita del acreedor hipotecario <strong>antes de firmar el contrato</strong>. Dejar en blanco si el inmueble está libre de gravámenes.
+  </div>
+  <div class="fields single">
+    <div class="field">
+      <label>Descripción de gravámenes (dejar en blanco si está libre)</label>
+      <textarea id="ar_gravamenes" placeholder="Ej: Hipoteca a favor de Compañía de Seguros Consorcio por 36.479 UF, inscrita a Fs. 43428 N°47240 del año 2020. Prohibición de enajenar, gravar o arrendar en favor del mismo acreedor."></textarea>
+    </div>
+    <div class="field"><label>Código verificación CBR</label><input type="text" id="ar_cbr_codigo" placeholder="Ej: cgp-1817844-xxxx"></div>
+    <div class="field"><label>Fecha del certificado CBR</label><input type="date" id="ar_cbr_fecha"></div>
+  </div>
+
+  <div class="section-label">Administración del edificio</div>
+  <div class="fields triple">
+    <div class="field"><label>Razón social administración</label><input type="text" id="ar_adm_razon" placeholder="Ej: Comunidad Condominio XYZ"></div>
+    <div class="field"><label>Correo pago gastos comunes</label><input type="email" id="ar_adm_mail" placeholder="adm.edificio@mail.com"></div>
+    <div class="field"><label>Monto referencial GGCC</label><input type="text" id="ar_ggcc_monto" placeholder="Ej: $50.000"><span class="hint">Valor orientativo, puede variar mes a mes.</span></div>
+  </div>
+
+  <div class="save-row">
+    <button class="save-btn" id="save-btn" onclick="guardar()">Guardar datos</button>
+    <span class="status" id="status"></span>
+  </div>
+</div>
+
+<script>
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const params = new URLSearchParams(window.location.search);
+const contratoId = params.get('id');
+
+if (!contratoId) {
+  document.querySelector('.container').innerHTML = '<div style="padding:3rem;text-align:center;color:#999;font-size:14px;">Link inválido. Solicita un nuevo link a GROW Real.</div>';
+}
+
+const CAMPOS = ['ar_razon_social','ar_rut_empresa','ar_rep_nombre','ar_rep_rut','ar_domicilio','ar_mail','ar_mail_copia','ar_telefono',
+  'ar_banco','ar_tipo_cuenta','ar_cuenta','ar_personeria_fecha','ar_personeria_notaria','ar_personeria_repertorio',
+  'ar_inmueble_direccion','ar_inmueble_local','ar_rol_avaluo','ar_cbr_fojas','ar_cbr_numero','ar_cbr_ano',
+  'ar_m2_perimetrales','ar_m2_utiles','ar_medidor_enel','ar_cliente_enel','ar_medidor_agua','ar_cliente_agua',
+  'ar_gravamenes','ar_cbr_codigo','ar_cbr_fecha','ar_adm_razon','ar_adm_mail','ar_ggcc_monto'];
+
+async function cargarDatos() {
+  const { data } = await db.from('datos_arrendadora').select('*').eq('contrato_id', contratoId).maybeSingle();
+  if (data) {
+    CAMPOS.forEach(c => { const el = document.getElementById(c); if (el && data[c]) el.value = data[c]; });
+    document.getElementById('already-saved').classList.add('show');
+  }
+  const { data: contrato } = await db.from('contratos').select('nombre_referencia,direccion_inmueble').eq('id', contratoId).maybeSingle();
+  if (contrato) {
+    document.getElementById('page-sub').textContent = `Contrato: ${contrato.nombre_referencia} — ${contrato.direccion_inmueble}`;
+    const dir = document.getElementById('ar_inmueble_direccion');
+    if (dir && !dir.value) dir.value = contrato.direccion_inmueble;
+  }
+}
+
+async function guardar() {
+  const btn = document.getElementById('save-btn');
+  const status = document.getElementById('status');
+  btn.disabled = true; btn.textContent = 'Guardando...'; status.textContent = '';
+
+  const datos = { contrato_id: contratoId };
+  CAMPOS.forEach(c => { const el = document.getElementById(c); if (el) datos[c] = el.value; });
+
+  const { data: existing } = await db.from('datos_arrendadora').select('id').eq('contrato_id', contratoId).maybeSingle();
+  let error;
+  if (existing) {
+    ({ error } = await db.from('datos_arrendadora').update(datos).eq('contrato_id', contratoId));
+  } else {
+    ({ error } = await db.from('datos_arrendadora').insert(datos));
+  }
+
+  btn.disabled = false; btn.textContent = 'Guardar datos';
+  if (error) { status.className = 'status err'; status.textContent = 'Error: ' + error.message; }
+  else { status.className = 'status ok'; status.textContent = '✓ Datos guardados correctamente.'; document.getElementById('already-saved').classList.add('show'); }
+}
+
+if (contratoId) cargarDatos();
+</script>
+</body>
+</html>
