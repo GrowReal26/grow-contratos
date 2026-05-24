@@ -6,8 +6,8 @@
 <title>GROW Real — Generar Contrato</title>
 <script src="supabase-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@9.0.2/build/index.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
@@ -140,7 +140,7 @@ async function generarContrato() {
       ? `El Arrendador declara que el inmueble registra los siguientes gravámenes según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt(ar.ar_cbr_codigo)}: ${ar.ar_gravamenes}. El Arrendador se obliga a obtener y entregar a la Arrendataria, dentro de los 30 días corridos desde la suscripción del presente contrato, la correspondiente autorización formal del acreedor hipotecario.`
       : `El Arrendador declara que el inmueble se encuentra libre de hipotecas, gravámenes, interdicciones y prohibiciones según certificado del Conservador de Bienes Raíces de Santiago de fecha ${fmtDate(ar.ar_cbr_fecha)}, verificable en www.conservador.cl bajo el código ${fmt(ar.ar_cbr_codigo)}.`;
 
-    const { Document, Packer, Paragraph, TextRun, AlignmentType, HeadingLevel, BorderStyle } = docx;
+    const { Document, Packer, Paragraph, TextRun, AlignmentType } = window.docx;
 
     const t = (text, opts = {}) => new TextRun({ text: String(text || ''), font: 'Arial', size: 22, ...opts });
     const tb = (text) => t(text, { bold: true });
@@ -335,7 +335,7 @@ async function generarContrato() {
       }]
     });
 
-    const buffer = await docx.Packer.toBlob(doc);
+    const buffer = await window.docx.Packer.toBlob(doc);
     const nombreArchivo = `Contrato_${(datosAr?.ar_inmueble_local || contratoId).replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.docx`;
     saveAs(buffer, nombreArchivo);
 
