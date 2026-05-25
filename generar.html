@@ -129,6 +129,7 @@
       <div class="tb-sep"></div>
       <!-- Color -->
       <input type="color" title="Color de texto" style="width:32px;height:32px;border:1px solid #e5e5e5;border-radius:6px;padding:2px;cursor:pointer;background:#fff;" onchange="fmtColor(this.value)">
+      <button class="tb-btn" style="background:#FFE066;border-color:#e5c800;font-size:11px;font-weight:700;width:auto;padding:0 9px;" onclick="resaltar()" title="Resaltar en amarillo">A▌</button>
       <div class="tb-sep"></div>
       <!-- Limpiar formato -->
       <button class="tb-btn tb-btn-text" onclick="fmt('removeFormat')" title="Limpiar formato">✕ Limpiar formato</button>
@@ -152,6 +153,7 @@ if (!contratoId) {
 function fmt(cmd) { document.getElementById('editor-area').focus(); document.execCommand(cmd, false, null); }
 function fmtSize(val) { if (val) { document.getElementById('editor-area').focus(); document.execCommand('fontSize', false, val); } }
 function fmtColor(val) { document.getElementById('editor-area').focus(); document.execCommand('foreColor', false, val); }
+function resaltar() { document.getElementById('editor-area').focus(); document.execCommand('hiliteColor', false, '#FFE066'); }
 
 function fmt2(v) { return (v && String(v).trim()) ? String(v).trim() : '[PENDIENTE]'; }
 function fmtDate(s) {
