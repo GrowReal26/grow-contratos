@@ -231,7 +231,7 @@ function cargarVersionGuardada(saved) {
   document.getElementById('gen-btn').textContent = 'Regenerar desde datos';
 }
 
-function regenerarDesdeatos() {
+function regenerarDesdedatos() {
   if (!confirm('¿Regenerar el contrato desde los datos originales? Se perderá la versión editada guardada.')) return;
   htmlOriginal = buildHTML(datosAt, datosAr, datosG);
   document.getElementById('editor-area').innerHTML = htmlOriginal;
